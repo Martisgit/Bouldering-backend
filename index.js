@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import "dotenv/config";
 import userRouter from "./src/route/userRoutes.js";
 import boulderRouter from "./src/route/boulderRoutes.js";
+import betaRouter from "./src/route/betaRoutes.js";
 const app = express();
 
 app.use(cors());
@@ -19,6 +20,7 @@ mongoose
 
 app.use(userRouter);
 app.use(boulderRouter);
+app.use(betaRouter);
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
   next();

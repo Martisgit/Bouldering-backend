@@ -50,7 +50,7 @@ export const LOGIN = async (req, res) => {
       { expiresIn: "12h" }
     );
 
-    return res.status(200).json({ message: "successful login", token: token });
+    return res.status(200).json({ message: "Successful login", token: token });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "We have some problems" });
