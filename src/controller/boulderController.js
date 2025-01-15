@@ -3,9 +3,6 @@ import User from "../model/userModel.js";
 import { v4 as uuidv4 } from "uuid";
 
 const addBoulder = async (req, res) => {
-  console.log("Received request to add boulder");
-  console.log("User object in request:", req.user);
-
   const name = req.body.name;
   const gym = req.body.gym;
   const picture = req.body.picture;
@@ -36,6 +33,23 @@ const addBoulder = async (req, res) => {
   }
 };
 
+const getBoulderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const boulder = await Boulder.findOne({ id });
+
+    if (!boulder) {
+      return res.status(404).json({ message: "Boulder not found" });
+    }
+
+    return res.status(200).json(boulder);
+  } catch (err) {
+    console.error("Error fetching boulder:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const getBoulders = async (req, res) => {
   try {
     const boulders = await Boulder.find();
@@ -51,23 +65,23 @@ const getBoulders = async (req, res) => {
     );
 
     res.status(200).json({ boulders: bouldersWithNames });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
 
 const markCompleted = async (req, res) => {
-  const id = req.params.id;
+  const boulderId = req.params.id;
   const userId = req.user.id;
 
   try {
-    const boulder = await Boulder.findOne({ id: id });
+    const boulder = await Boulder.findOne({ id: boulderId });
     if (!boulder) return res.status(404).json({ message: "Boulder not found" });
 
     const alreadyCompleted = boulder.completedBy.includes(userId);
 
     if (alreadyCompleted) {
-      boulder.completedBy = boulder.completedBy.filter((uid) => uid !== userId);
+      boulder.completedBy = boulder.completedBy.filter((id) => id !== userId);
     } else {
       boulder.completedBy.push(userId);
     }
@@ -78,10 +92,10 @@ const markCompleted = async (req, res) => {
       message: alreadyCompleted
         ? "Boulder unmarked as completed"
         : "Boulder marked as completed",
-      boulder: boulder,
+      completedBy: boulder.completedBy,
     });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error", err });
   }
 };
 
@@ -95,9 +109,15 @@ const deleteBoulder = async (req, res) => {
     await Boulder.findOneAndDelete({ id: id });
 
     res.status(200).json({ message: "Boulder deleted successfully" });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-export { addBoulder, getBoulders, markCompleted, deleteBoulder };
+export {
+  addBoulder,
+  getBoulders,
+  markCompleted,
+  deleteBoulder,
+  getBoulderById,
+};

@@ -6,16 +6,13 @@ const addBeta = async (req, res) => {
   try {
     const boulderId = req.params.boulderId;
     const media = req.body.media;
-    const userId = req.user.id; // Authenticated user
+    const userId = req.user.id;
 
     const boulder = await Boulder.findOne({ id: boulderId });
 
     if (!boulder) {
-      console.log("Boulder not found in database.");
       return res.status(404).json({ message: "Boulder not found" });
     }
-
-    console.log("Boulder found:", boulder);
 
     const newBeta = new Beta({
       id: uuidv4(),
@@ -28,8 +25,8 @@ const addBeta = async (req, res) => {
     return res
       .status(201)
       .json({ message: "Beta added successfully", beta: response });
-  } catch (error) {
-    console.error("Error in addBeta:", error);
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -46,8 +43,8 @@ const getBetasByBoulder = async (req, res) => {
     }
 
     return res.status(200).json({ betas: betas });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -56,8 +53,7 @@ const likeDislikeBeta = async (req, res) => {
   try {
     const betaId = req.params.betaId;
     const action = req.body.action; // "like" or "dislike"
-
-    console.log(`Processing ${action} for Beta ID: ${betaId}`);
+    const userId = req.user.id;
 
     const beta = await Beta.findOne({ id: betaId });
     if (!beta) {
@@ -65,18 +61,20 @@ const likeDislikeBeta = async (req, res) => {
     }
 
     if (action === "like") {
-      if (beta.likes > 0) {
-        beta.likes -= 1;
+      beta.dislikes = beta.dislikes.filter((id) => id !== userId);
+
+      if (!beta.likes.includes(userId)) {
+        beta.likes.push(userId);
       } else {
-        beta.likes += 1;
-        beta.dislikes = 0;
+        beta.likes = beta.likes.filter((id) => id !== userId);
       }
     } else if (action === "dislike") {
-      if (beta.dislikes > 0) {
-        beta.dislikes -= 1;
+      beta.likes = beta.likes.filter((id) => id !== userId);
+
+      if (!beta.dislikes.includes(userId)) {
+        beta.dislikes.push(userId);
       } else {
-        beta.dislikes += 1;
-        beta.likes = 0;
+        beta.dislikes = beta.dislikes.filter((id) => id !== userId);
       }
     } else {
       return res
@@ -85,11 +83,12 @@ const likeDislikeBeta = async (req, res) => {
     }
 
     await beta.save();
+
     return res
       .status(200)
       .json({ message: `Beta ${action}d successfully`, beta });
-  } catch (error) {
-    console.error("Error in likeDislikeBeta:", error);
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -113,8 +112,8 @@ const deleteBeta = async (req, res) => {
     await Beta.findOneAndDelete({ id: id });
 
     return res.status(200).json({ message: "Beta deleted successfully" });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

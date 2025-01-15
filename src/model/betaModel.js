@@ -13,8 +13,8 @@ const BetaSchema = new mongoose.Schema({
       message: "Must be an image or video URL.",
     },
   },
-  likes: { type: Number, default: 0 },
-  dislikes: { type: Number, default: 0 },
+  likes: { type: [String], default: [] },
+  dislikes: { type: [String], default: [] },
   createdBy: { type: String, required: true, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 });
