@@ -1,11 +1,14 @@
 import Boulder from "../model/boulderModel.js";
 import User from "../model/userModel.js";
 import { v4 as uuidv4 } from "uuid";
+import Beta from "../model/betaModel.js";
 
 const addBoulder = async (req, res) => {
   const name = req.body.name;
   const gym = req.body.gym;
-  const picture = req.body.picture;
+  const picture =
+    req.body.picture ||
+    "https://cdn.weasyl.com/~fateseeker/submissions/472144/4b9f8ea1c801dcd51259b4870a54b7c5b45e38db6a37427c3ff8ec70da8a5f81/fateseeker-rabbit-climbing-fail.jpg";
   const difficulty = req.body.difficulty;
 
   try {
@@ -104,13 +107,20 @@ const deleteBoulder = async (req, res) => {
 
   try {
     const boulder = await Boulder.findOne({ id: id });
-    if (!boulder) return res.status(404).json({ message: "Boulder not found" });
+    if (!boulder) {
+      return res.status(404).json({ message: "Boulder not found" });
+    }
+
+    await Beta.deleteMany({ boulderId: id });
 
     await Boulder.findOneAndDelete({ id: id });
 
-    res.status(200).json({ message: "Boulder deleted successfully" });
+    res
+      .status(200)
+      .json({ message: "Boulder and associated beta deleted successfully" });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 

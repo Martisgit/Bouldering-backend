@@ -84,9 +84,7 @@ const likeDislikeBeta = async (req, res) => {
 
     await beta.save();
 
-    return res
-      .status(200)
-      .json({ message: `Beta ${action}d successfully`, beta });
+    return res.status(200).json({ beta });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Internal server error" });
@@ -95,22 +93,21 @@ const likeDislikeBeta = async (req, res) => {
 
 const deleteBeta = async (req, res) => {
   try {
-    const id = req.params.id;
-    const userId = req.user.id;
+    const { boulderId, betaId } = req.params;
 
-    const beta = await Beta.findOne({ id: id });
+    const beta = await Beta.findOne({ id: betaId, boulderId });
+
     if (!beta) {
       return res.status(404).json({ message: "Beta not found" });
     }
 
-    if (beta.createdBy !== userId) {
+    if (beta.createdBy !== req.user.id) {
       return res
         .status(403)
         .json({ message: "You are not authorized to delete this beta" });
     }
 
-    await Beta.findOneAndDelete({ id: id });
-
+    await Beta.findOneAndDelete({ id: betaId });
     return res.status(200).json({ message: "Beta deleted successfully" });
   } catch (err) {
     console.error(err);

@@ -14,7 +14,7 @@ router.post("/users/names", async (req, res) => {
 
     res.status(200).json({ names });
   } catch (err) {
-    console.error("Error fetching user names:", err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });

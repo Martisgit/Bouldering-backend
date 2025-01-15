@@ -8,19 +8,26 @@ export const SIGN_UP = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(req.body.password, salt);
 
-    const newUser = {
+    const newUser = new UserModel({
       id: uuidv4(),
       email: req.body.email,
       name: req.body.name,
       password: hash,
-    };
+    });
 
-    const user = new UserModel(newUser);
-    const response = await user.save();
+    const user = await newUser.save();
 
-    return res
-      .status(201)
-      .json({ message: "User was created", user: response });
+    const token = jwt.sign(
+      { email: user.email, id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    return res.status(201).json({
+      message: "User was created",
+      token: token,
+      user: { id: user.id, email: user.email },
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "We have some problems" });

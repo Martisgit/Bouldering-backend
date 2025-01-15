@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+import cascadeDeleteBetas from "../middleware/boulderMiddleware.js"; // Import the middleware
 
 const BoulderSchema = new mongoose.Schema({
   id: { type: String, default: uuidv4, unique: true },
@@ -15,5 +16,7 @@ const BoulderSchema = new mongoose.Schema({
   completedBy: [{ type: String }],
   createdBy: { type: String, required: true },
 });
+
+BoulderSchema.pre("findOneAndDelete", cascadeDeleteBetas);
 
 export default mongoose.model("Boulder", BoulderSchema);
