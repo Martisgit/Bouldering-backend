@@ -8,7 +8,7 @@ const addBoulder = async (req, res) => {
   const gym = req.body.gym;
   const picture =
     req.body.picture ||
-    "https://cdn.weasyl.com/~fateseeker/submissions/472144/4b9f8ea1c801dcd51259b4870a54b7c5b45e38db6a37427c3ff8ec70da8a5f81/fateseeker-rabbit-climbing-fail.jpg";
+    "https://i.pinimg.com/originals/05/ee/0f/05ee0f59576f2d65e4d6918e5679d0dd.jpg";
   const difficulty = req.body.difficulty;
 
   try {
