@@ -1,5 +1,5 @@
 const isValidMedia = (url) => {
-  if (!url || typeof url !== "string") return false; // Handle invalid input
+  if (!url || typeof url !== "string") return false;
 
   // ✅ Allow images (png, jpg, jpeg, gif) and videos (mp4, mov, webm)
   const mediaRegex =

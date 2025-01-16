@@ -34,17 +34,12 @@ const addBeta = async (req, res) => {
 const getBetasByBoulder = async (req, res) => {
   try {
     const boulderId = req.params.boulderId;
-    const betas = await Beta.find({ boulderId: boulderId });
 
-    if (betas.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No beta found for this boulder" });
-    }
+    const betas = await Beta.find({ boulderId: boulderId });
 
     return res.status(200).json({ betas: betas });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching betas:", err.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
