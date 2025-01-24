@@ -2,9 +2,17 @@ import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import UserModel from "../model/userModel.js";
+import { signupSchema } from "../utils/validation.js";
+import { loginSchema } from "../utils/validation.js";
 
 export const SIGN_UP = async (req, res) => {
   try {
+    const { error } = signupSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      const errorMessages = error.details.map((detail) => detail.message);
+      return res.status(400).json({ messages: errorMessages });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(req.body.password, salt);
 
@@ -36,8 +44,13 @@ export const SIGN_UP = async (req, res) => {
 
 export const LOGIN = async (req, res) => {
   try {
-    const user = await UserModel.findOne({ email: req.body.email });
+    const { error } = loginSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      const errorMessages = error.details.map((detail) => detail.message);
+      return res.status(400).json({ messages: errorMessages });
+    }
 
+    const user = await UserModel.findOne({ email: req.body.email });
     if (!user) {
       return res.status(401).json({ message: "You have provided bad data" });
     }

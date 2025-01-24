@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-import isValidMedia from "../utils/validation.js";
+import { isValidMedia } from "../utils/validation.js";
 
 const BetaSchema = new mongoose.Schema({
   id: { type: String, default: uuidv4, unique: true },
